@@ -1,4 +1,5 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
 use utils::app_status::AppState;
 
@@ -18,9 +19,8 @@ async fn main() -> std::io::Result<()> {
     let port = (utils::constants::PORT).clone();
     let database_url = (utils::constants::DATABASE_URL).clone();
 
-    println!("DATAAAAAAAAAAAAAAAAAAA: {database_url}");
-
     let db = Database::connect(database_url).await.unwrap();
+    Migrator::up(&db, None).await.unwrap();
 
     HttpServer::new(move || {
         App::new()
