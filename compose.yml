@@ -1,6 +1,20 @@
 version: "3.8"
 
 services:
+  my_postgres:
+    platform: linux/x86_64
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+    volumes:
+      - ./postgresql:/docker-entrypoint-initdb.d
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - rust_actix_network
+
   server:
     platform: linux/amd64
     container_name: server
@@ -15,26 +29,17 @@ services:
       - target:/app/target
     environment:
       PORT: 8080
-      ADDRESS: "0.0.0.0"
+      ADDRESS: 0.0.0.0
     ports:
       - "8080:8080"
+    depends_on:
+      - my_postgres
+    networks:
+      - rust_actix_network
 
-  my_postgres:
-    platform: linux/x86_64
-    image: postgres:latest
-    container_name: my_postgres
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: 'trust'
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
-#     networks:
-#       - rust_actix_network
-
-# networks:
-#   rust_actix_network:
-#     external: true
+networks:
+  rust_actix_network:
+    external: true
 
 volumes:
   cargo-registry:
