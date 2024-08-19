@@ -19,5 +19,5 @@ pub async fn test(app_state: web::Data<AppState>) -> impl Responder {
         .await
         .unwrap();
 
-    api_response::ApiResponse::new(200, "Testaa".to_string())
+    api_response::ApiResponse::new(200, "Test".to_string())
 }

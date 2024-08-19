@@ -21,4 +21,3 @@ RUN curl -L https://github.com/rui314/mold/releases/download/v2.33.0/mold-2.33.0
 WORKDIR /app
 
 COPY . .
-COPY Cargo.toml Cargo.lock ./
