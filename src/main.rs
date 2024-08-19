@@ -1,4 +1,5 @@
 use actix_web::{middleware::Logger, App, HttpServer};
+use sea_orm::Database;
 
 mod routes;
 mod utils;
@@ -14,6 +15,9 @@ async fn main() -> std::io::Result<()> {
 
     let address = (utils::constants::ADDRESS).clone();
     let port = (utils::constants::PORT).clone();
+    let database_url = (utils::constants::DATABASE_URL).clone();
+
+    // let db = Database::connect(database_url).await.unwrap();
 
     HttpServer::new(|| {
         App::new()
