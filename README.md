@@ -11,4 +11,5 @@ DATABASE_URL=postgres://postgres@my_postgres:5432/rust_actix_db
 ```
 sea-orm-cli migrate init
 sea-orm-cli migrate generate create_user_table
+sea-orm-cli migrate up -u postgres://postgres@localhost:5432/rust_actix_db
 ```
