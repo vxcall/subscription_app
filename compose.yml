@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  server:
+    platform: linux/amd64
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: sh -c "cargo watch -x fmt -s 'mold -run cargo run'"
+    volumes:
+      - .:/app
+      - cargo-registry:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - target:/app/target
+    environment:
+      PORT: 8080
+      ADDRESS: "0.0.0.0"
+    ports:
+      - "8080:8080"
+
+  my_postgres:
+    platform: linux/x86_64
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+#     networks:
+#       - rust_actix_network
+
+# networks:
+#   rust_actix_network:
+#     external: true
+
+volumes:
+  cargo-registry:
+  cargo-git:
+  target:
