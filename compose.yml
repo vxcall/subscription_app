@@ -13,7 +13,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     networks:
-      - rust_actix_network
+      - subscription_network
 
   subscription_server:
     platform: linux/amd64
