@@ -2237,20 +2237,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_actix"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "dotenv",
- "env_logger",
- "lazy_static",
- "migration",
- "sea-orm",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "rust_decimal"
 version = "1.35.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2945,6 +2931,20 @@ name = "strum"
 version = "0.26.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
+
+[[package]]
+name = "subscription_app"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "dotenv",
+ "env_logger",
+ "lazy_static",
+ "migration",
+ "sea-orm",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "subtle"

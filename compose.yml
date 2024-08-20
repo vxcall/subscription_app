@@ -1,10 +1,10 @@
 version: "3.8"
 
 services:
-  my_postgres:
+  subscription_postgres:
     platform: linux/x86_64
     image: postgres:latest
-    container_name: my_postgres
+    container_name: subscription_postgres
     environment:
       POSTGRES_HOST_AUTH_METHOD: 'trust'
     volumes:
@@ -15,9 +15,9 @@ services:
     networks:
       - rust_actix_network
 
-  server:
+  subscription_server:
     platform: linux/amd64
-    container_name: server
+    container_name: subscription_server
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -33,12 +33,12 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - my_postgres
+      - subscription_postgres
     networks:
-      - rust_actix_network
+      - subscription_network
 
 networks:
-  rust_actix_network:
+  subscription_network:
     external: true
 
 volumes:

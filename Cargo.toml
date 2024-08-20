@@ -1,5 +1,5 @@
 [package]
-name = "rust_actix"
+name = "subscription_app"
 version = "0.1.0"
 edition = "2021"
 
