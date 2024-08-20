@@ -1,1 +1,1 @@
-CREATE DATABASE rust_actix_db;
+CREATE DATABASE subscription_db
