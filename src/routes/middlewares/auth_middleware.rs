@@ -2,7 +2,7 @@ use actix_web::{
     body::MessageBody,
     dev::{ServiceRequest, ServiceResponse},
     http::header::AUTHORIZATION,
-    Error,
+    Error, HttpMessage,
 };
 use actix_web_lab::middleware::Next;
 
@@ -28,7 +28,8 @@ pub async fn check_auth_middleware(
         .unwrap()
         .replace("Bearer ", "")
         .to_owned();
-    let _claim = decode_jwt(token).unwrap();
+    let claim = decode_jwt(token).unwrap();
+    req.extensions_mut().insert(claim.claims);
 
     next.call(req)
         .await

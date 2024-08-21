@@ -1,3 +1,7 @@
+use std::future;
+
+use actix_web::FromRequest;
+use actix_web::HttpMessage;
 use chrono::Duration;
 use chrono::Utc;
 use jsonwebtoken::decode;
@@ -10,12 +14,28 @@ use jsonwebtoken::Validation;
 
 use super::constants;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Claims {
     pub exp: usize,
     pub iat: usize,
     pub email: String,
     pub id: i32,
+}
+
+impl FromRequest for Claims {
+    type Error = actix_web::Error;
+
+    type Future = future::Ready<Result<Self, Self::Error>>;
+
+    fn from_request(
+        req: &actix_web::HttpRequest,
+        payload: &mut actix_web::dev::Payload,
+    ) -> future::Ready<Result<Claims, actix_web::Error>> {
+        match req.extensions().get::<Claims>() {
+            Some(claim) => future::ready(Ok(claim.clone())),
+            None => future::ready(Err(actix_web::error::ErrorBadRequest("Bad Claims"))),
+        }
+    }
 }
 
 pub fn encode_jwt(email: String, id: i32) -> Result<String, jsonwebtoken::errors::Error> {
