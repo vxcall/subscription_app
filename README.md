@@ -19,7 +19,7 @@ docker network rm subscription_network
 
 # migration related commands
 
-- command for generating new table. the migration file will be created under /migration/src
+- generate new table
 
 ```Shell
 sea-orm-cli migrate generate create_user_table
@@ -29,4 +29,10 @@ sea-orm-cli migrate generate create_user_table
 
 ```Shell
 sea-orm-cli migrate up -u postgres://postgres@localhost:5432/subscription_db
+```
+
+generate entity
+
+```Shell
+sea-orm-cli generate entity -u postgres://postgres@localhost:5432/subscription_db -o entity/src
 ```

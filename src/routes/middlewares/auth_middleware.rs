@@ -11,6 +11,7 @@ use crate::utils::{
     jwt::decode_jwt,
 };
 
+// middleware that checks if the request has a valid token
 pub async fn check_auth_middleware(
     req: ServiceRequest,
     next: Next<impl MessageBody>,

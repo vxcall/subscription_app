@@ -46,8 +46,6 @@ async fn main() -> Result<(), MainError> {
     let port = (utils::constants::PORT).clone();
     let database_url = (utils::constants::DATABASE_URL).clone();
 
-    println!("port: {port}");
-
     let db = Database::connect(database_url)
         .await
         .map_err(|err| MainError {
