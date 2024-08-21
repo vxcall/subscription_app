@@ -11,7 +11,7 @@ pub struct Model {
     pub text: String,
     #[sea_orm(unique)]
     pub uuid: Uuid,
-    pub image: String,
+    pub image: Option<String>,
     pub user_id: i32,
     pub created_at: DateTime,
 }
