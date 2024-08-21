@@ -1,3 +1,8 @@
+use std::path::PathBuf;
+
+use actix_multipart::form::tempfile::TempFile;
+use actix_multipart::form::text::Text;
+use actix_multipart::form::MultipartForm;
 use actix_web::{get, post, web};
 use chrono::NaiveDateTime;
 use chrono::Utc;
@@ -6,18 +11,21 @@ use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::Set;
+use sea_orm::TransactionTrait;
 use uuid::Uuid;
 
+use crate::utils;
 use crate::utils::{
     api_response::{self, ApiResponse},
     app_state,
     jwt::Claims,
 };
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(MultipartForm)]
 struct CreatePostModel {
-    title: String,
-    text: String,
+    title: Text<String>,
+    text: Text<String>,
+    file: TempFile,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -42,8 +50,40 @@ struct UserModel {
 pub async fn create_post(
     app_state: web::Data<app_state::AppState>,
     claim: Claims,
-    post_model: web::Json<CreatePostModel>,
+    post_model: MultipartForm<CreatePostModel>,
 ) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
+    let check_name = post_model
+        .file
+        .file_name
+        .clone()
+        .unwrap_or("null".to_owned());
+    let max_file_size = (*utils::constants::MAX_FILE_SIZE).clone();
+
+    match &check_name[check_name.len() - 4..] {
+        ".png" | ".jpg" => {}
+        _ => {
+            return Err(ApiResponse::new(400, "File must be an image".to_owned()));
+        }
+    }
+
+    match post_model.file.size {
+        0 => {
+            return Err(ApiResponse::new(
+                401,
+                "File size is zero which is invalid".to_owned(),
+            ));
+        }
+        length if length > max_file_size as usize => {
+            return Err(ApiResponse::new(400, "File size is too large".to_owned()));
+        }
+        _ => {}
+    }
+    let transaction = app_state
+        .db
+        .begin()
+        .await
+        .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+
     let post_entity = entity::post::ActiveModel {
         title: Set(post_model.title.clone()),
         text: Set(post_model.text.clone()),
@@ -53,15 +93,49 @@ pub async fn create_post(
         ..Default::default()
     };
 
-    post_entity
-        .insert(&app_state.db)
+    let mut created_entity = post_entity
+        .save(&transaction)
         .await
         .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
 
-    Ok(api_response::ApiResponse::new(
-        200,
-        "Post Created".to_owned(),
-    ))
+    let temp_file_path = post_model.file.file.path();
+    let file_name = post_model
+        .file
+        .file_name
+        .as_ref()
+        .map(|m| m.as_ref())
+        .unwrap_or("null");
+
+    let time_stamp: i64 = Utc::now().timestamp();
+
+    let mut file_path = PathBuf::from("./public");
+    let new_file_name = format!("{}-{}", time_stamp, file_name);
+    file_path.push(&new_file_name);
+
+    match std::fs::copy(temp_file_path, file_path) {
+        Ok(_) => {
+            created_entity.image = Set(Some(new_file_name));
+            created_entity
+                .save(&transaction)
+                .await
+                .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+
+            transaction
+                .commit()
+                .await
+                .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+
+            std::fs::remove_file(temp_file_path).unwrap_or_default();
+            Ok(ApiResponse::new(200, "Post Created".to_owned()))
+        }
+        Err(_) => {
+            transaction
+                .rollback()
+                .await
+                .map_err(|err| api_response::ApiResponse::new(500, err.to_string()))?;
+            Err(ApiResponse::new(500, "Internal server error".to_owned()))
+        }
+    }
 }
 
 #[get("my-posts")]
