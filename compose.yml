@@ -28,8 +28,7 @@ services:
       - cargo-git:/usr/local/cargo/git
       - target:/app/target
     environment:
-      PORT: 8080
-      ADDRESS: 0.0.0.0
+      RUST_LOG: actix_web=info
     ports:
       - "8080:8080"
     depends_on:
