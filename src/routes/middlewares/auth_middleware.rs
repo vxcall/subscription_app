@@ -48,7 +48,7 @@ pub async fn check_auth_middleware(
         Ok(true) => {
             return Err(Error::from(ApiResponse::new(
                 401,
-                "Token is blacklisted".to_string(),
+                "Token is invalid".to_string(),
             )))
         }
         Ok(false) => {} // Token is not blacklisted, continue

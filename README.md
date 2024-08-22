@@ -1,3 +1,6 @@
+# subscription_app
+WIP application that is supposed to be a subscription app in the future.
+There's no core business logic yet, but I implemeted login / logout and authentication middleware already
 
 # start up
 
