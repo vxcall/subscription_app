@@ -50,7 +50,6 @@ services:
 
 networks:
   subscription_network:
-    external: true
 
 volumes:
   cargo-registry:
