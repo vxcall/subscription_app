@@ -19,9 +19,10 @@ sea-orm = { version = "1.0.0", features = ["sqlx-postgres", "runtime-tokio-rustl
 sha256 = "1.5.0"
 chrono = "0.4.38"
 jsonwebtoken = "9.3.0"
-actix-web-lab = "0.22.0"
 sanitize-filename = "0.5.0"
 actix-multipart = "0.7.2"
+redis = { version = "0.26.1", features = ["tokio-comp"] }
+anyhow = "1.0.86"
 
 [dependencies.uuid]
 version = "1.10.0"

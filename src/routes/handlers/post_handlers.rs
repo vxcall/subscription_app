@@ -51,13 +51,13 @@ pub async fn create_post(
     app_state: web::Data<app_state::AppState>,
     claim: Claims,
     post_model: MultipartForm<CreatePostModel>,
-) -> Result<api_response::ApiResponse, api_response::ApiResponse> {
+) -> Result<ApiResponse, ApiResponse> {
     let check_name = post_model
         .file
         .file_name
         .clone()
         .unwrap_or("null".to_owned());
-    let max_file_size = (*utils::constants::MAX_FILE_SIZE).clone();
+    let max_file_size = (*utils::environment_variables::MAX_FILE_SIZE).clone();
 
     match &check_name[check_name.len() - 4..] {
         ".png" | ".jpg" => {}

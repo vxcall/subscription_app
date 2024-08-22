@@ -1,5 +1,5 @@
+use actix_web::middleware::from_fn;
 use actix_web::web;
-use actix_web_lab::middleware::from_fn;
 
 use super::{handlers::post_handlers, middlewares};
 

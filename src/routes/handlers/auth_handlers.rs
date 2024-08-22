@@ -1,9 +1,9 @@
 use crate::utils::{
     api_response::{self, ApiResponse},
     app_state,
-    jwt::encode_jwt,
+    jwt::{add_to_blacklist, encode_jwt},
 };
-use actix_web::{post, web};
+use actix_web::{post, web, HttpRequest};
 use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, Set};
 use sha256::digest;
 
@@ -64,4 +64,27 @@ pub async fn login(
         200,
         format!("{{'token': '{}'}}", token),
     ))
+}
+
+#[post("/logout")]
+async fn logout(
+    app_state: web::Data<app_state::AppState>,
+    req: HttpRequest,
+) -> Result<ApiResponse, ApiResponse> {
+    if let Some(auth_header) = req.headers().get("Authorization") {
+        if let Ok(auth_str) = auth_header.to_str() {
+            if auth_str.starts_with("Bearer ") {
+                let token = auth_str.replace("Bearer ", "");
+                // Add token to blacklist with an expiry time of 24 hours
+                if let Err(e) = add_to_blacklist(&app_state.redis_client, &token).await {
+                    return Err(ApiResponse::new(
+                        500,
+                        format!("Failed to blacklist token: {}", e),
+                    ));
+                }
+                return Ok(ApiResponse::new(200, "Successfully logged out".to_string()));
+            }
+        }
+    }
+    Err(ApiResponse::new(400, "Invalid token".to_string()))
 }
